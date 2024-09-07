@@ -2,6 +2,7 @@ const calculator = document.querySelector(".calculator");
 const keys = calculator.querySelectorAll(".btn");
 let lastkeyOperator = false;
 let digitCount = 0;
+let is_Result=false;
 
 keys.forEach((keys) => {
   keys.addEventListener("click", (e) => {
@@ -14,11 +15,12 @@ keys.forEach((keys) => {
 
       if (!action) {
         if (digitCount < 6) {
-          if (displayText === "0") {
+          if (displayText === "0"|| is_Result===true) {
             display.textContent = keyText;
           } else {
             display.textContent += keyText;
           }
+          is_Result=false
           lastkeyOperator = false;
           digitCount++;
         }
@@ -46,6 +48,7 @@ keys.forEach((keys) => {
       if (action === "Result") {
         const result = Math.floor(eval(displayText) * 100) / 100;
         display.textContent = result;
+        is_Result=true
       }
 
       if (action === "Clear") {
