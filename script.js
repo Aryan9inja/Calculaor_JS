@@ -52,7 +52,8 @@ keys.forEach((keys) => {
       }
 
       if (action === "Result") {
-        const result = evaluateExpression(expression);
+        const evaluatedExpression = calculate_Power(expression);
+        const result = evaluateExpression(evaluatedExpression);
         expression = result.toString();
         display.textContent = result;
         is_Result = true;
@@ -66,21 +67,26 @@ keys.forEach((keys) => {
       }
 
       if (action === "Paranthesis") {
-        const paranthesis=add_Paranthesis()
+        const paranthesis = add_Paranthesis();
         if (displayText === "0") {
           display.textContent = paranthesis;
-          expression=paranthesis;
+          expression = paranthesis;
         } else {
           display.textContent += paranthesis;
-          expression+=paranthesis;
+          expression += paranthesis;
         }
+      }
+
+      if (action === "Power") {
+        display.textContent += keyText;
+        expression += keyText;
       }
     }
   });
 });
 
 function evaluateExpression(exp) {
-  console.log(exp)
+  console.log(exp);
   try {
     let result = new Function("return " + exp)();
     return Math.floor(result * 100) / 100;
@@ -90,20 +96,40 @@ function evaluateExpression(exp) {
 }
 
 function add_Paranthesis() {
-  let openCount=(display.textContent.match(/\(/g) || []).length
-  let closeCount=(display.textContent.match(/\)/g) || []).length
+  let openCount = (display.textContent.match(/\(/g) || []).length;
+  let closeCount = (display.textContent.match(/\)/g) || []).length;
 
-  let lastChar=display.textContent[display.textContent.length-1]
+  let lastChar = display.textContent[display.textContent.length - 1];
 
-  if(openCount===closeCount || /[\+\-\*\/\(]$/.test(lastChar)){
-    return "("
+  if (openCount === closeCount || /[\+\-\*\/\(]$/.test(lastChar)) {
+    return "(";
+  } else if (openCount > closeCount || /[0-9\)]$/.test(lastChar)) {
+    return ")";
+  } else {
+    return "";
+  }
+}
+
+function calculate_Power(expression) {
+  //Logic for power caculation
+  const PowerRegex = /(\([^()]+\)|-?\d+\.?\d*)\^(\([^()]+\)|-?\d+\.?\d*)/;
+
+  while (PowerRegex.test(expression)) {
+    expression = expression.replace(PowerRegex, (match, base, exponent) => {
+      let evaluatedBase = base;
+      if (base.startsWith("(") && base.endsWith(")")) {
+        evaluatedBase = evaluateExpression(base.slice(1, -1));
+      }
+      let evaluatedExponent = exponent;
+      if (exponent.startsWith("(") && exponent.endsWith(")")) {
+        evaluatedExponent = evaluateExpression(exponent.slice(1, -1));
+      }
+      return Math.pow(
+        parseFloat(evaluatedBase),
+        parseFloat(evaluatedExponent)
+      );
+    });
   }
 
-  else if(openCount>closeCount || /[0-9\)]$/.test(lastChar)){
-    return ")"
-  }
-
-  else{
-    return ""
-  }
+  return expression;
 }
