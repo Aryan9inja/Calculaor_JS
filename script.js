@@ -53,7 +53,9 @@ keys.forEach((keys) => {
 
       if (action === "Result") {
         const evaluatedExpression = calculate_Power(expression);
-        const result = evaluateExpression(evaluatedExpression);
+        const evaluatedExpression_AfterRoot =
+          calculate_Root(evaluatedExpression);
+        const result = evaluateExpression(evaluatedExpression_AfterRoot);
         expression = result.toString();
         display.textContent = result;
         is_Result = true;
@@ -80,6 +82,16 @@ keys.forEach((keys) => {
       if (action === "Power") {
         display.textContent += keyText;
         expression += keyText;
+      }
+
+      if (action === "Root") {
+        if (display.textContent === "0") {
+          display.textContent = keyText;
+          expression=keyText
+        } else {
+          display.textContent += keyText;
+          expression += keyText;
+        }
       }
     }
   });
@@ -124,12 +136,24 @@ function calculate_Power(expression) {
       if (exponent.startsWith("(") && exponent.endsWith(")")) {
         evaluatedExponent = evaluateExpression(exponent.slice(1, -1));
       }
-      return Math.pow(
-        parseFloat(evaluatedBase),
-        parseFloat(evaluatedExponent)
-      );
+      return Math.pow(parseFloat(evaluatedBase), parseFloat(evaluatedExponent));
     });
   }
 
+  return expression;
+}
+
+function calculate_Root(expression) {
+  const RootRegex = /\√(\([^()]+\)|-?\d+\.?\d*)/;
+
+  while (RootRegex.test(expression)) {
+    expression = expression.replace(RootRegex, (match, num) => {
+      let evaluatedNum = num;
+      if (num.startsWith("(") && num.endsWith(")")) {
+        evaluatedNum = evaluateExpression(num.slice(1, -1));
+      }
+      return Math.sqrt(parseFloat(evaluatedNum));
+    });
+  }
   return expression;
 }
