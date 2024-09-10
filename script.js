@@ -52,10 +52,14 @@ keys.forEach((keys) => {
       }
 
       if (action === "Result") {
-        const evaluatedExpression = calculate_Power(expression);
-        const evaluatedExpression_AfterRoot =
-          calculate_Root(evaluatedExpression);
-        const result = evaluateExpression(evaluatedExpression_AfterRoot);
+        const evaluatedExpression_AfterPower = calculate_Power(expression);
+        const evaluatedExpression_AfterRoot = calculate_Root(
+          evaluatedExpression_AfterPower
+        );
+        const evaluatedExpression_AfterPercentage = calculate_Percentage(
+          evaluatedExpression_AfterRoot
+        );
+        const result = evaluateExpression(evaluatedExpression_AfterPercentage);
         expression = result.toString();
         display.textContent = result;
         is_Result = true;
@@ -87,11 +91,26 @@ keys.forEach((keys) => {
       if (action === "Root") {
         if (display.textContent === "0") {
           display.textContent = keyText;
-          expression=keyText
+          expression = keyText;
         } else {
           display.textContent += keyText;
           expression += keyText;
         }
+      }
+
+      if (action === "Pi") {
+        if (display.textContent === "0") {
+          display.textContent = keyText;
+          expression = Math.PI;
+        } else {
+          display.textContent += keyText;
+          expression += Math.PI;
+        }
+      }
+
+      if (action === "Percentage") {
+        display.textContent += keyText;
+        expression += keyText;
       }
     }
   });
@@ -155,5 +174,38 @@ function calculate_Root(expression) {
       return Math.sqrt(parseFloat(evaluatedNum));
     });
   }
+  return expression;
+}
+
+function calculate_Percentage(expression) {
+  const PercentageRegex = /(\([^()]+\)|-?\d+\.?\d*)\%(\([^()]+\)|-?\d+\.?\d*)/;
+  const SinglePercentageRegex = /(\([^()]+\)|-?\d+\.?\d*)\%/;
+
+  while (PercentageRegex.test(expression)) {
+    expression = expression.replace(PercentageRegex, (match, num1, num2) => {
+      let evaluatedNum1 = num1;
+      if (num1.startsWith("(") && num1.endsWith(")")) {
+        evaluatedNum1 = evaluateExpression(num1.slice(1, -1));
+      }
+      let evaluatedNum2 = num2;
+      if (num2.startsWith("(") && num2.endsWith(")")) {
+        evaluatedNum2 = evaluateExpression(num2.slice(1, -1));
+      }
+
+      return (parseFloat(evaluatedNum1) / 100) * parseFloat(evaluatedNum2);
+    });
+  }
+
+  while (SinglePercentageRegex.test(expression)) {
+    expression = expression.replace(SinglePercentageRegex, (match, num1) => {
+      let evaluatedNum1 = num1;
+      if (num1.startsWith("(") && num1.endsWith(")")) {
+        evaluatedNum1 = evaluateExpression(num1.slice(1, -1));
+      }
+
+      return parseFloat(evaluatedNum1) / 100;
+    });
+  }
+
   return expression;
 }
