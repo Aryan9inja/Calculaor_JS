@@ -59,7 +59,8 @@ keys.forEach((keys) => {
         const evaluatedExpression_AfterPercentage = calculate_Percentage(
           evaluatedExpression_AfterRoot
         );
-        const result = evaluateExpression(evaluatedExpression_AfterPercentage);
+        const evaluatedExpression_AfterFactorial=calculate_Factorial(evaluatedExpression_AfterPercentage)
+        const result = evaluateExpression(evaluatedExpression_AfterFactorial);
         expression = result.toString();
         display.textContent = result;
         is_Result = true;
@@ -98,6 +99,16 @@ keys.forEach((keys) => {
         }
       }
 
+      if (action === "Factorial") {
+        if (display.textContent === "0") {
+          display.textContent = keyText;
+          expression = keyText;
+        } else {
+          display.textContent += keyText;
+          expression += keyText;
+        }
+      }
+
       if (action === "Pi") {
         if (display.textContent === "0") {
           display.textContent = keyText;
@@ -105,6 +116,16 @@ keys.forEach((keys) => {
         } else {
           display.textContent += keyText;
           expression += Math.PI;
+        }
+      }
+
+      if (action === "Expo") {
+        if (display.textContent === "0") {
+          display.textContent = keyText;
+          expression = Math.E;
+        } else {
+          display.textContent += keyText;
+          expression += Math.E;
         }
       }
 
@@ -207,5 +228,30 @@ function calculate_Percentage(expression) {
     });
   }
 
+  return expression;
+}
+
+function calculate_Factorial(){
+  const FactorialRegex = /(\([^()]+\)|-?\d+\.?\d*)\!/
+
+  function factorial(n) {
+    if (n < 0) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let result = 1;
+    for (let i = 2; i <= n; i++) {
+      result *= i;
+    }
+    return result;
+  }
+
+  while (FactorialRegex.test(expression)) {
+    expression = expression.replace(FactorialRegex, (match, num) => {
+      let evaluatedNum = num;
+      if (num.startsWith("(") && num.endsWith(")")) {
+        evaluatedNum = evaluateExpression(num.slice(1, -1));
+      }
+      return factorial(evaluatedNum);
+    });
+  }
   return expression;
 }
